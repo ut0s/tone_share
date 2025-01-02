@@ -5,6 +5,7 @@ export default defineConfig({
   lang: 'en-US',
   title: "Tone Share",
   description: "Share URL/File by Tone in LAN(Local Audio Network)",
+  cleanUrls: true,
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
