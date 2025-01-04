@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "chart.js": "^4.4.7",
-    "tone": "^15.0.4"
+    "tone": "^15.0.4",
+    "vitepress-plugin-back-to-top": "^1.0.1"
   }
 }
