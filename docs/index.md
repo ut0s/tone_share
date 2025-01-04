@@ -1,5 +1,4 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
@@ -23,3 +22,10 @@ features:
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ---
 
+<script setup>
+import ToneShare from '../src/components/ToneShare.vue'
+</script>
+
+# Docs
+
+<ToneShare />
