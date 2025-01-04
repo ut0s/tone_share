@@ -11,6 +11,7 @@
     "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
+    "chart.js": "^4.4.7",
     "tone": "^15.0.4"
   }
 }
