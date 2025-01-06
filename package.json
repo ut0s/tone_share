@@ -6,12 +6,17 @@
     "vitepress": "^1.5.0"
   },
   "scripts": {
+    "format": "npm run lint ; npm run format:prettier",
+    "format:prettier": "prettier --write .",
+    "lint": "eslint . --fix",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "chart.js": "^4.4.7",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
     "tone": "^15.0.4",
     "vitepress-plugin-back-to-top": "^1.0.1"
   }
