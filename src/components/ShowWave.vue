@@ -20,13 +20,27 @@ const initializeAudio = async () => {
     audioContext = new AudioContext();
     const source = audioContext.createMediaStreamSource(stream);
     analyser = audioContext.createAnalyser();
-    // analyser.fftSize = 256; // FFTサイズを調整
+
     source.connect(analyser);
+    analyser.fftSize = 4096;
     dataArray = new Uint8Array(analyser.frequencyBinCount);
     fftDataArray = new Uint8Array(analyser.frequencyBinCount);
   } catch (err) {
     console.error("マイクの取得に失敗:", err);
   }
+};
+
+const createFrequencyLabels = (
+  binCount: number,
+  sampleRate: number,
+  fftSize: number,
+): string[] => {
+  const frequencies: string[] = [];
+  for (let i = 0; i < binCount; i++) {
+    const freq = Math.round((i * sampleRate) / (fftSize * 2));
+    frequencies.push(freq.toString());
+  }
+  return frequencies;
 };
 
 const createCharts = () => {
@@ -74,11 +88,10 @@ const createCharts = () => {
   fftChart = new Chart(fftChartRef.value, {
     type: "bar",
     data: {
-      labels: Array.from(
-        { length: analyser.frequencyBinCount },
-        (_, i) =>
-          Math.round((i * audioContext.sampleRate) / (analyser.fftSize * 2)) +
-          "Hz",
+      labels: createFrequencyLabels(
+        analyser.frequencyBinCount,
+        audioContext.sampleRate,
+        analyser.fftSize,
       ),
       datasets: [
         {
@@ -92,6 +105,22 @@ const createCharts = () => {
       responsive: true,
       animation: false,
       scales: {
+        x: {
+          type: "logarithmic",
+          min: 200,
+          max: 3000,
+          ticks: {
+            callback: (value) => {
+              const freq = Number(value);
+              if (
+                [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000].includes(freq)
+              ) {
+                return freq + "Hz";
+              }
+              return "";
+            },
+          },
+        },
         y: {
           min: 0,
           max: 255,
@@ -101,7 +130,7 @@ const createCharts = () => {
         legend: { display: false },
         title: {
           display: true,
-          text: "周波数スペクトラム",
+          text: "周波数スペクトラム（対数スケール）",
         },
       },
     },
@@ -145,24 +174,28 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-row gap-6 w-full max-w-3xl items-center justify-center">
-    <div class="chart-block">
-      <h3 class="text-lg font-semibold text-gray-700 mb-2">時間波形</h3>
-      <div
-        class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-[200px]"
-      >
-        <canvas ref="timeChartRef"></canvas>
+  <div class="flex flex-col gap-4">
+    <div
+      class="flex flex-row gap-6 w-full max-w-3xl items-center justify-center"
+    >
+      <div class="chart-block">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">時間波形</h3>
+        <div
+          class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-[200px]"
+        >
+          <canvas ref="timeChartRef"></canvas>
+        </div>
       </div>
-    </div>
 
-    <div class="chart-block">
-      <h3 class="text-lg font-semibold text-gray-700 mb-2">
-        周波数スペクトラム
-      </h3>
-      <div
-        class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-[200px]"
-      >
-        <canvas ref="fftChartRef"></canvas>
+      <div class="chart-block">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">
+          周波数スペクトラム
+        </h3>
+        <div
+          class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-[200px]"
+        >
+          <canvas ref="fftChartRef"></canvas>
+        </div>
       </div>
     </div>
   </div>
