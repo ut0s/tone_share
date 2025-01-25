@@ -13,8 +13,8 @@ export default defineConfig({
     nav: [
       { text: "Home", link: "/" },
       { text: "How to use", link: "/readme" },
-      { text: "Changelog", link: "/markdown-examples" },
-      { text: "Examples", link: "/markdown-examples" },
+      { text: "Changelog", link: "/changelog" },
+      // { text: "Examples", link: "/markdown-examples" },
       { text: "Resources", link: "/resource" },
     ],
 
