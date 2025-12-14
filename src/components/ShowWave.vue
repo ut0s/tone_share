@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import { Chart, registerables } from "chart.js";
+import { useUiI18n } from "../composables/useUiI18n";
 
 Chart.register(...registerables);
+
+const { locale, t } = useUiI18n();
 
 const timeChartRef = ref<HTMLCanvasElement | null>(null);
 const fftChartRef = ref<HTMLCanvasElement | null>(null);
@@ -26,7 +29,7 @@ const initializeAudio = async () => {
     dataArray = new Uint8Array(analyser.frequencyBinCount);
     fftDataArray = new Uint8Array(analyser.frequencyBinCount);
   } catch (err) {
-    console.error("マイクの取得に失敗:", err);
+    console.error(`${t("error_mic_failed")}:`, err);
   }
 };
 
@@ -50,14 +53,13 @@ const createCharts = () => {
     i.toString(),
   );
 
-  // 時間波形のグラフ
   timeChart = new Chart(timeChartRef.value, {
     type: "line",
     data: {
       labels,
       datasets: [
         {
-          label: "時間波形",
+          label: t("showwave_chart_title_time"),
           data: Array(analyser.frequencyBinCount).fill(128),
           borderColor: "rgb(75, 192, 192)",
           tension: 0.3,
@@ -78,13 +80,12 @@ const createCharts = () => {
         legend: { display: false },
         title: {
           display: true,
-          text: "時間波形",
+          text: t("showwave_chart_title_time"),
         },
       },
     },
   });
 
-  // FFTスペクトラムのグラフ
   fftChart = new Chart(fftChartRef.value, {
     type: "bar",
     data: {
@@ -95,7 +96,7 @@ const createCharts = () => {
       ),
       datasets: [
         {
-          label: "FFTスペクトラム",
+          label: t("showwave_chart_title_fft"),
           data: Array(analyser.frequencyBinCount).fill(0),
           backgroundColor: "rgb(153, 102, 255)",
         },
@@ -130,11 +131,24 @@ const createCharts = () => {
         legend: { display: false },
         title: {
           display: true,
-          text: "周波数スペクトラム（対数スケール）",
+          text: t("showwave_chart_title_fft"),
         },
       },
     },
   });
+};
+
+const syncChartTexts = () => {
+  if (timeChart) {
+    (timeChart.data.datasets[0] as any).label = t("showwave_chart_title_time");
+    (timeChart.options.plugins as any).title.text = t("showwave_chart_title_time");
+    timeChart.update("none");
+  }
+  if (fftChart) {
+    (fftChart.data.datasets[0] as any).label = t("showwave_chart_title_fft");
+    (fftChart.options.plugins as any).title.text = t("showwave_chart_title_fft");
+    fftChart.update("none");
+  }
 };
 
 const updateCharts = () => {
@@ -159,6 +173,10 @@ onMounted(async () => {
   updateCharts();
 });
 
+watch(locale, () => {
+  syncChartTexts();
+});
+
 onUnmounted(() => {
   cancelAnimationFrame(animationId);
   if (audioContext) {
@@ -179,7 +197,7 @@ onUnmounted(() => {
       class="flex flex-row gap-6 w-full max-w-3xl items-center justify-center"
     >
       <div class="chart-block">
-        <h3 class="text-lg font-semibold text-gray-700 mb-2">時間波形</h3>
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">{{ t("showwave_title_time") }}</h3>
         <div
           class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-[200px]"
         >
@@ -188,9 +206,7 @@ onUnmounted(() => {
       </div>
 
       <div class="chart-block">
-        <h3 class="text-lg font-semibold text-gray-700 mb-2">
-          周波数スペクトラム
-        </h3>
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">{{ t("showwave_title_fft") }}</h3>
         <div
           class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-[200px]"
         >

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from "vue";
+import { useUiI18n } from "../composables/useUiI18n";
 
 const message = ref("hello ggwave");
 const decodedMessages = ref<string[]>([]);
 const isSending = ref(false);
 const isReceiving = ref(false);
-const statusText = ref("ggwaveモジュールを読み込み中...");
+const { t } = useUiI18n();
+const statusText = ref(t("status_loading"));
 const errorMessage = ref("");
 const inputLevel = ref(0);
 const needsGesture = ref(false);
@@ -51,7 +53,7 @@ const getAudioContextCtor = (): typeof AudioContext | null => {
 const ensureAudioContext = async () => {
   if (!audioContext) {
     const AudioCtx = getAudioContextCtor();
-    if (!AudioCtx) throw new Error("AudioContext is not available");
+    if (!AudioCtx) throw new Error(t("error_audio_context_unavailable"));
     try {
       audioContext = new AudioCtx({ sampleRate: 48000 } as any);
     } catch {
@@ -87,10 +89,10 @@ const loadGGWave = async () => {
     if (typeof params.sampleRate === "number") params.sampleRate = ctx.sampleRate;
 
     ggwaveInstance = ggwaveModule.init(params);
-    statusText.value = "ggwave準備完了";
+    statusText.value = t("status_ready");
   } catch (err: any) {
-    errorMessage.value = err?.message || "ggwaveの読み込みに失敗しました";
-    statusText.value = "ggwave読み込み失敗";
+    errorMessage.value = err?.message || t("error_ggwave_load_failed");
+    statusText.value = t("error_ggwave_load_failed");
     throw err;
   }
 };
@@ -140,9 +142,10 @@ const sendMessage = async () => {
     if (wasReceiving) {
       await startReceiving();
     }
-    statusText.value = `送信完了: "${payload}"`;
+    statusText.value =
+      t("status_send_done_prefix") + payload + t("status_send_done_suffix");
   } catch (err: any) {
-    errorMessage.value = err?.message || "送信に失敗しました";
+    errorMessage.value = err?.message || t("error_send_failed");
   } finally {
     isSending.value = false;
   }
@@ -203,9 +206,9 @@ const startReceiving = async () => {
     processor.connect(silentGain);
     silentGain.connect(ctx.destination);
     isReceiving.value = true;
-    statusText.value = "受信中";
+    statusText.value = t("status_receiving");
   } catch (err: any) {
-    errorMessage.value = err?.message || "マイクの取得に失敗しました";
+    errorMessage.value = err?.message || t("error_mic_failed");
     await stopReceiving();
   }
 };
@@ -229,7 +232,7 @@ onBeforeUnmount(() => {
 const toggleReceiving = async () => {
   if (isReceiving.value) {
     await stopReceiving();
-    statusText.value = "停止中";
+    statusText.value = t("status_stopped");
     return;
   }
   await startReceiving();
