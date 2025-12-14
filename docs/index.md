@@ -3,15 +3,15 @@ layout: home
 
 hero:
   name: "Tone Share"
-  text: "Share URL/File by Tone in LAN(Local Audio Network)"
-  tagline: My great project tagline
+  text: "Share anything to anyone by tone"
+  tagline: Share Text/URL/File/ by Tone in LAN(Local Audio Network)
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
-    - theme: alt
-      text: API Examples
-      link: /api-examples
+      text: Web App ver.
+      link: /app
+    - theme: brand
+      text: Chrome Extension
+      link: https://chromewebstore.google.com
 
 features:
   - title: Feature A
@@ -26,6 +26,6 @@ features:
 import ToneShare from '../src/components/ToneShare.vue'
 </script>
 
-# Docs
+# Demo
 
 <ToneShare />
